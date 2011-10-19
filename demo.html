@@ -19,7 +19,7 @@
   <div id="canvas"></div>
 
   <script type="text/javascript">
-    var camera, scene, renderer, geometry, material, mesh, container;
+    var camera, scene, renderer, geometry, material, mesh, container, pointLight;
     var lastTime = Date.now();
 
     init();
@@ -28,15 +28,24 @@
     function init() {
       container = $('#canvas');
       camera = new THREE.PerspectiveCamera( 75, container.innerWidth() / container.innerHeight(), 1, 10000 );
-      camera.position.z = 300;
+      camera.up.set(0, 0, 1);
 
       scene = new THREE.Scene();
 
       geometry = new THREE.CubeGeometry( 200, 200, 200 );
-      material = new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe: true } );
+      material = new THREE.MeshPhongMaterial( { color: 0xff0000, ambient: 0xffffff, specular: 0x009900, shininess: 30, shading: THREE.SmoothShading } );
 
       mesh = new THREE.Mesh( geometry, material );
       scene.add( mesh );
+      
+      pointLight = new THREE.PointLight( 0xFFFFFF );
+      pointLight.position.x = 150;
+      pointLight.position.y = 150;
+      pointLight.position.z = 150;
+      scene.addLight(pointLight);
+      
+      var ambientLight = new THREE.AmbientLight( 0x222222 );
+      scene.addLight(ambientLight);
 
       renderer = new THREE.WebGLRenderer();
       renderer.setSize( container.innerWidth(), container.innerHeight() );
@@ -47,8 +56,8 @@
     function animate(time) {
       var delta = (time - lastTime) / 1000.0;
       lastTime = time;
-      mesh.rotation.x += delta / 2;
-      mesh.rotation.y += delta;
+      camera.position.set(Math.cos(time / 1000.0) * 200, Math.sin(time / 1000.0) * 200, 200);
+      camera.lookAt(new THREE.Vector3(0, 0, -10));
       requestAnimationFrame( animate );
       render();
     }

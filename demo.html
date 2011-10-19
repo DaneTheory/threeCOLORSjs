@@ -28,12 +28,14 @@
     function init() {
       container = $('#canvas');
       camera = new THREE.PerspectiveCamera( 75, container.innerWidth() / container.innerHeight(), 1, 10000 );
+      camera.position.set(200, 200, 200);
+      camera.lookAt(new THREE.Vector3(0, 0, 0));
       camera.up.set(0, 0, 1);
 
       scene = new THREE.Scene();
 
       geometry = new THREE.CubeGeometry( 200, 200, 200 );
-      material = new THREE.MeshPhongMaterial( { color: 0xff0000, ambient: 0xffffff, specular: 0x009900, shininess: 30, shading: THREE.SmoothShading } );
+      material = new THREE.MeshPhongMaterial( { color: 0xff0000, ambient: 0xffffff, shading: THREE.SmoothShading } );
 
       mesh = new THREE.Mesh( geometry, material );
       scene.add( mesh );
@@ -56,8 +58,7 @@
     function animate(time) {
       var delta = (time - lastTime) / 1000.0;
       lastTime = time;
-      camera.position.set(Math.cos(time / 1000.0) * 200, Math.sin(time / 1000.0) * 200, 200);
-      camera.lookAt(new THREE.Vector3(0, 0, -10));
+      mesh.rotation.y += delta;
       requestAnimationFrame( animate );
       render();
     }

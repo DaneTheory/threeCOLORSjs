@@ -17,49 +17,45 @@
 
 <body>
   <div id="canvas"></div>
-</body>
-<script type="text/javascript">
-var camera, scene, renderer,
-    geometry, material, mesh, container;
+
+  <script type="text/javascript">
+    var camera, scene, renderer, geometry, material, mesh, container;
+    var lastTime = Date.now();
 
     init();
-    animate();
+    animate(Date.now());
 
     function init() {
-        container = $('#canvas');
-        camera = new THREE.PerspectiveCamera( 75, container.innerWidth() / container.innerHeight(), 1, 10000 );
-        camera.position.z = 300;
+      container = $('#canvas');
+      camera = new THREE.PerspectiveCamera( 75, container.innerWidth() / container.innerHeight(), 1, 10000 );
+      camera.position.z = 300;
 
-        scene = new THREE.Scene();
+      scene = new THREE.Scene();
 
-        geometry = new THREE.CubeGeometry( 200, 200, 200 );
-        material = new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe: true } );
+      geometry = new THREE.CubeGeometry( 200, 200, 200 );
+      material = new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe: true } );
 
-        mesh = new THREE.Mesh( geometry, material );
-        scene.add( mesh );
+      mesh = new THREE.Mesh( geometry, material );
+      scene.add( mesh );
 
-        renderer = new THREE.WebGLRenderer();
-        renderer.setSize( container.innerWidth(), container.innerHeight() );
+      renderer = new THREE.WebGLRenderer();
+      renderer.setSize( container.innerWidth(), container.innerHeight() );
 
-        container.append( renderer.domElement );
-
+      container.append( renderer.domElement );
     }
 
-    function animate() {
-
-        // Include examples/js/RequestAnimationFrame.js for cross-browser compatibility.
-        requestAnimationFrame( animate );
-        render();
-
+    function animate(time) {
+      var delta = (time - lastTime) / 1000.0;
+      lastTime = time;
+      mesh.rotation.x += delta / 2;
+      mesh.rotation.y += delta;
+      requestAnimationFrame( animate );
+      render();
     }
 
     function render() {
-
-        mesh.rotation.x += 0.01;
-        mesh.rotation.y += 0.02;
-
-        renderer.render( scene, camera );
-
+      renderer.render( scene, camera );
     }
-</script>
+  </script>
+</body>
 </html>

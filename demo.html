@@ -29,8 +29,8 @@
       container = $('#canvas');
       
       camera = new THREE.PerspectiveCamera( 75, container.innerWidth() / container.innerHeight(), 1, 10000 );
-      camera.position.set(200, 200, 200);
-      camera.lookAt(new THREE.Vector3(0, 150, 0));
+      camera.position.set(300, 500, 0);
+      camera.lookAt(new THREE.Vector3(0, 0, 0));
       camera.up.set(0, 0, 1);
       
       scene = new THREE.Scene();
@@ -39,26 +39,32 @@
       material = new THREE.MeshPhongMaterial({ color: 0xff0000, ambient: 0xffffff, shading: THREE.SmoothShading });
       mesh = new THREE.Mesh(geometry, material);
       mesh.position.set(0, 150, 0);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
       scene.add(mesh);
       
       var plane = new THREE.PlaneGeometry(8, 8, 8, 8);
-      var meshCanvas = new THREE.Mesh(plane, new THREE.MeshPhongMaterial({ color: 0xcccccc, ambient: 0x333333, shading: THREE.SmoothShading }));
+      var meshCanvas = new THREE.Mesh(plane, new THREE.MeshLambertMaterial({ color: 0xcccccc, ambient: 0x333333, shading: THREE.SmoothShading }));
       meshCanvas.rotation.x = -90 * Math.PI / 180;
-      meshCanvas.scale.x = meshCanvas.scale.y = meshCanvas.scale.z = 100;
-      meshCanvas
+      meshCanvas.scale.x = meshCanvas.scale.y = meshCanvas.scale.z = 200;
+      meshCanvas.receiveShadow = true;
       scene.add(meshCanvas);
       
-      pointLight = new THREE.PointLight( 0xFFFFFF );
-      pointLight.position.x = 100;
-      pointLight.position.y = 300;
-      pointLight.position.z = 300;
-      scene.addLight(pointLight);
+      pointLight = new THREE.SpotLight( 0xFFFFFF );
+      pointLight.position.set(0, 500, 300);
+      pointLight.castShadow = true;
+      scene.add(pointLight);
       
       var ambientLight = new THREE.AmbientLight( 0x222222 );
-      scene.addLight(ambientLight);
+      scene.add(ambientLight);
 
       renderer = new THREE.WebGLRenderer();
       renderer.setSize( container.innerWidth(), container.innerHeight() );
+      renderer.clear();
+      renderer.shadowMapEnabled = true;
+      renderer.shadowCameraFov = 75;
+      renderer.shadowMapWidth = 1024;
+      renderer.shadowMapHeight = 1024;
 
       container.append( renderer.domElement );
     }
@@ -67,7 +73,7 @@
       var delta = (time - lastTime) / 1000.0;
       lastTime = time;
       mesh.rotation.y += delta;
-      requestAnimationFrame( animate );
+      requestAnimationFrame( animate, renderer.domElement  );
       render();
     }
 

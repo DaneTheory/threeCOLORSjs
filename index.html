@@ -3,17 +3,38 @@
 <head>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
 <style>
-iframe { margin: 0; padding: 0; border: 0; width: 100%; height: 100%; }
+html, body, iframe { width: 100%; height: 100%; margin: 0; padding: 0; border: 0 }
+iframe { height: 99% }
 </style>
 </head>
 <body>
 <script>
-  var url = "https://raw.github.com/vincentwoo/threeCOLORSjs/master/demo.html";
-  $.get(url, function() {
-      console.log('hello');
+  var user = "vincentwoo";
+  var repo = "threeCOLORSjs";
+  var file = "demo.html";
+  var treeUrl = "https://api.github.com/repos/"+user+"/"+repo+"/git/trees/master?callback=?"
+  $.getJSON(treeUrl, function(response) {
+      $.each(response.data.tree, function(idx, blob) {
+        if (blob.path === file) return loadFile(blob.url);
+      });
     }
   );
+  function loadFile(blobUrl) {
+    $.getJSON(blobUrl + "?callback=?", function(response) {
+      var content = atob(response.data.content.replace(/\n/g, ""));
+      var iframe = document.createElement("iframe");
+      document.body.appendChild(iframe);
+      var doc = iframe.document;
+      if (iframe.contentDocument)
+        doc = iframe.contentDocument; // For NS6
+      else if (iframe.contentWindow)
+        doc = iframe.contentWindow.document; // For IE5.5 and IE6
+      // Put the content in the iframe
+      doc.open();
+      doc.writeln(content);
+      doc.close();
+    });
+  }
 </script>
-<iframe src="https://raw.github.com/vincentwoo/threeCOLORSjs/master/demo.html"></iframe>
 </body>
 </html>

@@ -1,29 +1,42 @@
 <!DOCTYPE html>
 <html>
 <head>
+<title>Repo Browser - refresh to see file list again</title>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
 <style>
 html, body, iframe { width: 100%; height: 100%; margin: 0; padding: 0; border: 0 }
 iframe { height: 99% }
+#container { width: 400px; margin: 50px auto; background: #eee; border: 1px solid #ccc; padding: 30px; }
+#container a {display: block; margin: 5px; color: #333; }
 </style>
 </head>
 <body>
+<div id="container"></div>
 <script>
   var user = "vincentwoo";
   var repo = "threeCOLORSjs";
   var file = "demo.html";
-  var treeUrl = "https://api.github.com/repos/"+user+"/"+repo+"/git/trees/master?callback=?"
+  var container = $('#container');
+  var treeUrl = "https://api.github.com/repos/"+user+"/"+repo+"/git/trees/master?callback=?";
   $.getJSON(treeUrl, function(response) {
-      $.each(response.data.tree, function(idx, blob) {
-        if (blob.path === file) return loadFile(blob.url);
-      });
-    }
-  );
+    $.each(response.data.tree, function(idx, blob) {
+      container.append($('<a/>', {
+        text: blob.path,
+        href: "#",
+        click: function() {
+          loadFile(blob.url);
+          return false;
+        }
+      }));
+    });
+  });
   function loadFile(blobUrl) {
     $.getJSON(blobUrl + "?callback=?", function(response) {
       var content = atob(response.data.content.replace(/\n/g, ""));
       var iframe = document.createElement("iframe");
-      document.body.appendChild(iframe);
+      var body = $(document.body);
+      body.empty();
+      body.append(iframe);
       var doc = iframe.document;
       if (iframe.contentDocument)
         doc = iframe.contentDocument; // For NS6

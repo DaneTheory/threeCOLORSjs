@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+<script src="https://raw.github.com/mrdoob/three.js/master/build/Three.js"></script>
+<script src="https://raw.github.com/mrdoob/three.js/master/examples/js/RequestAnimationFrame.js"></script>
+<style>
+  * {margin: 0; padding: 0;}
+  #canvas {
+    width: 600px;
+    height: 400px;
+    margin: 40px auto;
+    border: 1px solid #eee;
+  }
+</style>
+</head>
+
+<body>
+  <div id="canvas"></div>
+
+  <script type="text/javascript">
+    var Key = {
+      pressed_:{},
+
+      LEFT: 37,
+      UP: 38,
+      RIGHT: 39,
+      DOWN:40,
+
+      isDown: function(keyCode) {
+        return this.pressed_[keyCode];
+      }, 
+
+      onKeydown: function(event) {
+        this.pressed_[event.keyCode] = true;
+      },
+
+      onKeyup: function(event) {
+        delete this.pressed_[event.keyCode];
+      }
+    };
+
+    window.addEventListener('keyup',
+       function(event) { Key.onKeyup(event); }, false);
+
+    window.addEventListener('keydown',
+       function(event) { Key.onKeydown(event); }, false);
+
+    var camera, scene, renderer, container, pointLight;
+    var lastTime = Date.now();
+    scene = new THREE.Scene();
+
+    var Game = {};
+
+    function Pothead() {
+      this.x = 0;
+      this.y = 0;
+      this.z = 0;
+
+      geometry = new THREE.SphereGeometry(25, 16, 16);
+      material = new THREE.MeshPhongMaterial({ color: 0x00ff00, ambient: 0xffffff, shading: THREE.SmoothShading });
+      sphere = new THREE.Mesh(geometry, material);
+      sphere.position.set(this.x, this.y, this.z);
+      sphere.castShadow = true;
+      sphere.receiveShadow = true;
+
+      this.mesh = sphere;
+
+      scene.add(sphere);
+    }
+
+    Pothead.prototype.moveLeft = function() {
+      this.x -= 10;
+    }
+
+    Pothead.prototype.moveRight = function() {
+      this.x += 10;
+    }
+
+    Pothead.prototype.moveForward = function() {
+      this.z -= 10;
+    }
+
+    Pothead.prototype.moveBack = function() {
+      this.z += 10;
+    }
+
+    Pothead.prototype.update = function() {
+      if (Key.isDown(Key.UP)) this.moveForward();
+      if (Key.isDown(Key.LEFT)) this.moveLeft();
+      if (Key.isDown(Key.DOWN)) this.moveBack();
+      if (Key.isDown(Key.RIGHT)) this.moveRight();
+
+      this.mesh.position.x = this.x;
+      this.mesh.position.y = this.y;
+      this.mesh.position.z = this.z;
+    }
+
+    Game.init = function () {
+      container = $('#canvas');
+      Game.player = new Pothead();
+      
+      camera = new THREE.PerspectiveCamera( 75, container.innerWidth() / container.innerHeight(), 1, 10000 );
+      camera.position.set(0, 150, 300);
+      camera.lookAt(new THREE.Vector3(0, 0, 0));
+      camera.up.set(0, 1, 0);
+      
+      var plane = new THREE.PlaneGeometry(8, 8, 8, 8);
+      var meshCanvas = new THREE.Mesh(plane, new THREE.MeshLambertMaterial({ color: 0xcccccc, ambient: 0x333333, shading: THREE.SmoothShading }));
+      meshCanvas.rotation.x = -90 * Math.PI / 180;
+      meshCanvas.scale.x = meshCanvas.scale.y = meshCanvas.scale.z = 200;
+      meshCanvas.position.y = -20;
+      meshCanvas.receiveShadow = true;
+      scene.add(meshCanvas);
+      
+      pointLight = new THREE.SpotLight( 0xFFFFFF );
+      pointLight.position.set(0, 500, 300);
+      pointLight.castShadow = true;
+      scene.add(pointLight);
+      
+      var ambientLight = new THREE.AmbientLight( 0x222222 );
+      scene.add(ambientLight);
+
+      renderer = new THREE.WebGLRenderer();
+      renderer.setSize( container.innerWidth(), container.innerHeight() );
+      renderer.clear();
+      renderer.shadowMapEnabled = true;
+      renderer.shadowCameraFov = 75;
+      renderer.shadowMapWidth = 1024;
+      renderer.shadowMapHeight = 1024;
+
+      container.append( renderer.domElement );
+    }
+
+    Game.update = function(time) {
+      var delta = (time - lastTime) / 1000.0;
+      lastTime = time;
+      sphere.rotation.y += delta;
+      requestAnimationFrame(Game.update, renderer.domElement  );
+      Game.player.update();
+      Game.render();
+    }
+
+    Game.render = function() {
+      renderer.render(scene, camera);
+    }
+
+    Game.init();
+    Game.update(Date.now());
+  </script>
+</body>
+</html>

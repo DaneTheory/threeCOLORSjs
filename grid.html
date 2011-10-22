@@ -28,7 +28,7 @@
     function init() {
       container = $('#canvas');
       
-      camera = new THREE.PerspectiveCamera( 50, container.innerWidth() / container.innerHeight(), 1, 10000 );
+      camera = new THREE.PerspectiveCamera( 55, container.innerWidth() / container.innerHeight(), 1, 10000 );
       camera.position.set(60, 60, 60);
       camera.lookAt(new THREE.Vector3(10, 0, 10));
       camera.up.set(0, 0, 1);
@@ -81,8 +81,9 @@
         for (var j = 0; j < cubes[i].length; j++) {
           var factor = (Math.sin((i * 2 * Math.PI / cubes.length) + time / 1000.0) +
                        Math.sin((j * 2 * Math.PI / cubes[i].length) + time / 1000.0)) / 4 + 0.5;
+          var gradient = (i + j) / (cubes.length + cubes[i].length - 2);
           cubes[i][j].position.y = 4 + 15 * factor;
-          cubes[i][j].materials[0].color.setRGB( 1 , 1-factor , 1-factor);
+          cubes[i][j].materials[0].color.setRGB( 1 - factor + factor * gradient, 1 - factor, 1 - factor * gradient );
         }
       }
       lastTime = time;

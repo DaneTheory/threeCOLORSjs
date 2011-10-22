@@ -78,8 +78,9 @@
     function animate(time) {
       var delta = (time - lastTime) / 1000.0;
       for (var i = 0; i < cubes.length; i++) {
-        for (var j = 0; j < cubes.length; j++) {
-          var factor = (Math.sin(i + time / 1000.0) + Math.sin(j + time / 1000.0)) / 4 + 0.5;
+        for (var j = 0; j < cubes[i].length; j++) {
+          var factor = (Math.sin((i * 2 * Math.PI / cubes.length) + time / 1000.0) +
+                       Math.sin((j * 2 * Math.PI / cubes[i].length) + time / 1000.0)) / 4 + 0.5;
           cubes[i][j].position.y = 4 + 15 * factor;
           cubes[i][j].materials[0].color.setRGB( 1 , 1-factor , 1-factor);
         }

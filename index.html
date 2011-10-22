@@ -51,10 +51,9 @@ iframe { height: 99%; }
     });
   }
    $.history.init(function(hash) {
-      if(hash == "") {
+      if(!hash) {
         init();
       } else {
-        console.log(hash);
         loadFile(hash);
       }
     },

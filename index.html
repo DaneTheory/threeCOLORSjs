@@ -17,7 +17,7 @@ iframe { height: 99%; }
   var container = $('#container');
   var treeUrl = 'https://api.github.com/repos/vincentwoo/threeCOLORSjs/git/trees/master?callback=?';
   var blobs = {};
-  function init(complete) {
+  function init(path, complete) {
     if (container.html()) return;
     $.getJSON(treeUrl, function(response) {
       $.each(response.data.tree, function(idx, blob) {
@@ -30,12 +30,12 @@ iframe { height: 99%; }
             return false;
           }
         }));
-        if (complete) complete();
+        if (complete && path == blob.path) complete();
       });
     });
   }
-  function loadFile(blobPath) {
-    $.getJSON(blobs[blobPath] + "?callback=?", function(response) {
+  function loadFile(blobUrl) {
+    $.getJSON(blobUrl + "?callback=?", function(response) {
       var content = atob(response.data.content.replace(/\n/g, ""));
       container.hide();
       var iframe = document.createElement("iframe");
@@ -54,11 +54,11 @@ iframe { height: 99%; }
       $('iframe').remove();
       if(hash) {
         if (!blobs[hash]) {
-          init(function() {
-            loadFile(hash);
+          init(hash, function() {
+            loadFile(blobs[hash]);
           });
         } else {
-          loadFile(hash);
+          loadFile(blobs[hash]);
         }
       } else {
         container.show();

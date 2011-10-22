@@ -40,9 +40,9 @@
         var arr = [];
         for (var j = -50; j < 50; j += 10) {
           geometry = new THREE.CubeGeometry(8, 8, 8);
-          material = new THREE.MeshPhongMaterial({ color: 0xffffff, ambient: 0x222222, shading: THREE.SmoothShading });
+          material = new THREE.MeshPhongMaterial({ color: 0xffffff, shading: THREE.SmoothShading });
           mesh = new THREE.Mesh(geometry, material);
-          mesh.position.set(i, 10, j);
+          mesh.position.set(i, 4, j);
           mesh.castShadow = true;
           scene.add(mesh);
           arr.push(mesh);
@@ -51,7 +51,7 @@
       } 
       
       var plane = new THREE.PlaneGeometry(8, 8, 8, 8);
-      var meshCanvas = new THREE.Mesh(plane, new THREE.MeshLambertMaterial({ color: 0xAAAAAA, ambient: 0x222222, shading: THREE.SmoothShading }));
+      var meshCanvas = new THREE.Mesh(plane, new THREE.MeshLambertMaterial({ color: 0xAAAAAA, shading: THREE.SmoothShading }));
       meshCanvas.rotation.x = -90 * Math.PI / 180;
       meshCanvas.scale.x = meshCanvas.scale.y = meshCanvas.scale.z = 200;
       meshCanvas.receiveShadow = true;
@@ -79,7 +79,9 @@
       var delta = (time - lastTime) / 1000.0;
       for (var i = 0; i < cubes.length; i++) {
         for (var j = 0; j < cubes.length; j++) {
-          cubes[i][j].position.y = 10 + 2.5*Math.sin(i + time / 1000.0) + 2.5*Math.sin(j + time / 1000.0);
+          var factor = (Math.sin(i + time / 1000.0) + Math.sin(j + time / 1000.0)) / 4 + 0.5;
+          cubes[i][j].position.y = 4 + 15 * factor;
+          cubes[i][j].materials[0].color.setRGB( 1 , 1-factor , 1-factor);
         }
       }
       lastTime = time;

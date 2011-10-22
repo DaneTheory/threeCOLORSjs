@@ -7,7 +7,7 @@
 <style>
 html, body, iframe { width: 100%; height: 100%; margin: 0; padding: 0; border: 0; }
 iframe { height: 99%; }
-#container { width: 400px; margin: 50px auto; background: #eee; border: 1px solid #ccc; padding: 30px; }
+#container { width: 400px; margin: 50px auto; background: #eee; border: 1px solid #ccc; padding: 30px; display: none }
 #container a {display: block; margin: 5px; color: #333; }
 </style>
 </head>
@@ -16,45 +16,53 @@ iframe { height: 99%; }
 <script>
   var container = $('#container');
   var treeUrl = 'https://api.github.com/repos/vincentwoo/threeCOLORSjs/git/trees/master?callback=?';
-  function init() {
-    $('iframe').remove();
-    container.show();
+  var blobs = {};
+  function init(complete) {
     if (container.html()) return;
     $.getJSON(treeUrl, function(response) {
       $.each(response.data.tree, function(idx, blob) {
+        blobs[blob.path] = blob.url;
         container.append($('<a/>', {
           text: blob.path,
-          href: "#",
+          href: "#" + blob.path,
           click: function() {
-            $.history.load(blob.url);
+            $.history.load(blob.path);
             return false;
           }
         }));
+        if (complete) complete();
       });
     });
   }
-  function loadFile(blobUrl) {
-    $.getJSON(blobUrl + "?callback=?", function(response) {
+  function loadFile(blobPath) {
+    $.getJSON(blobs[blobPath] + "?callback=?", function(response) {
       var content = atob(response.data.content.replace(/\n/g, ""));
       container.hide();
       var iframe = document.createElement("iframe");
       $('body').append(iframe);
       var doc = iframe.document;
       if (iframe.contentDocument)
-        doc = iframe.contentDocument; // For NS6
+        doc = iframe.contentDocument;
       else if (iframe.contentWindow)
-        doc = iframe.contentWindow.document; // For IE5.5 and IE6
-      // Put the content in the iframe
+        doc = iframe.contentWindow.document; 
       doc.open();
       doc.writeln(content);
       doc.close();
     });
   }
-   $.history.init(function(hash) {
-      if(!hash) {
-        init();
+  $.history.init(function(hash) {
+      $('iframe').remove();
+      if(hash) {
+        if (!blobs[hash]) {
+          init(function() {
+            loadFile(hash);
+          });
+        } else {
+          loadFile(hash);
+        }
       } else {
-        loadFile(hash);
+        container.show();
+        init();
       }
     },
     { unescape: ":,/" });

@@ -78,13 +78,25 @@
     }
     
     function fireRay(e) {
-      var cx = e.offsetX / container.innerWidth() * 2 - 1;
-      var cy = -e.offsetY / container.innerHeight() * 2 + 1;
+      var cx, cy;
+      if (!e.offsetX) {
+        cx = e.layerX - $(e.target).position().left;
+        cy = e.layerY - $(e.target).position().top;
+      } else {
+        cx = e.offsetX;
+        cy = e.offsetY;
+      }
+      var cx = cx / container.innerWidth() * 2 - 1;
+      var cy = -cy / container.innerHeight() * 2 + 1;
       var projector = new THREE.Projector();
       var ray = projector.pickingRay(new THREE.Vector3(cx, cy, 0), camera);
       var intersects = ray.intersectScene(scene);
-      console.log(intersects);
-      if (intersects.length > 1) intersects[0].object.visible = false;
+      for (var i = 0; i < intersects.length - 1; i++) {
+        if (intersects[i].object.visible) {
+          intersects[i].object.visible = false;
+          break;
+        }
+      }
     }
 
     function animate(time) {

@@ -19,14 +19,16 @@
   <div id="canvas"></div>
 
   <script type="text/javascript">
-    var camera, scene, renderer, geometry, material, mesh, container, pointLight, cubes;
+    var camera, scene, renderer, geometry, material, mesh, pointLight, cubes;
     var lastTime = Date.now();
+    var container = $('#canvas');
 
     init();
     animate(Date.now());
+    container.click(fireRay);
 
     function init() {
-      container = $('#canvas');
+      
       var ratio = container.innerWidth() / container.innerHeight();
       var minHeight = 50;
       camera = new THREE.OrthographicCamera ( -minHeight * ratio, minHeight * ratio, minHeight, -minHeight, 1, 10000 );
@@ -55,7 +57,7 @@
       
       var plane = new THREE.PlaneGeometry(8, 8, 8, 8);
       var meshCanvas = new THREE.Mesh(plane, new THREE.MeshLambertMaterial({ color: 0xAAAAAA, shading: THREE.SmoothShading }));
-      meshCanvas.rotation.x = -90 * Math.PI / 180;
+      meshCanvas.rotation.x = -0.5 * Math.PI;
       meshCanvas.scale.x = meshCanvas.scale.y = meshCanvas.scale.z = 200;
       meshCanvas.receiveShadow = true;
       scene.add(meshCanvas);
@@ -64,9 +66,6 @@
       pointLight.position.set(0, 500, 300);
       pointLight.castShadow = true;
       scene.add(pointLight);
-      
-      var ambientLight = new THREE.AmbientLight( 0x222222 );
-      scene.add(ambientLight);
 
       renderer = new THREE.WebGLRenderer({antialias: true});
       renderer.setSize( container.innerWidth(), container.innerHeight() );
@@ -76,6 +75,16 @@
       renderer.shadowMapHeight = 2000;
 
       container.append( renderer.domElement );
+    }
+    
+    function fireRay(e) {
+      var cx = e.offsetX / container.innerWidth() * 2 - 1;
+      var cy = -e.offsetY / container.innerHeight() * 2 + 1;
+      var projector = new THREE.Projector();
+      var ray = projector.pickingRay(new THREE.Vector3(cx, cy, 0), camera);
+      var intersects = ray.intersectScene(scene);
+      console.log(intersects);
+      if (intersects.length > 1) intersects[0].object.visible = false;
     }
 
     function animate(time) {

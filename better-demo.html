@@ -40,6 +40,7 @@
       }
     };
 
+    // TODO: attach these to canvas object
     window.addEventListener('keyup',
        function(event) { Key.onKeyup(event); }, false);
 
@@ -85,6 +86,11 @@
       this.z += 10;
     }
 
+    Pothead.prototype.pos = function() {
+      var vec = new THREE.Vector3(this.x, this.y, this.z);
+      return 
+    }
+
     Pothead.prototype.update = function() {
       if (Key.isDown(Key.UP)) this.moveForward();
       if (Key.isDown(Key.LEFT)) this.moveLeft();
@@ -97,14 +103,59 @@
     }
 
     Game.init = function () {
+      var projector = new THREE.Projector();
       container = $('#canvas');
       Game.player = new Pothead();
+      
       
       camera = new THREE.PerspectiveCamera( 75, container.innerWidth() / container.innerHeight(), 1, 10000 );
       camera.position.set(0, 150, 300);
       camera.lookAt(new THREE.Vector3(0, 0, 0));
       camera.up.set(0, 1, 0);
-      
+
+      window.addEventListener('mousedown', function(e) {
+        if (e.target == renderer.domElement) {
+          var cx = e.clientX;
+          var cy = e.clientY;
+          console.log('click: ' + cx + ' ' + cy);
+
+          //var vec = new THREE.Vector3(cx, cy, 0.5);
+          var vec = new THREE.Vector3((cx/window.innerWidth)*2-1,
+-(cy/window.innerHeight)*2+1, 0.5);
+          var p3d = projector.unprojectVector(vec, camera);
+          console.log('point: ' + p3d.x + ' ' + p3d.y + ' ' + p3d.z);
+
+          var playerVec = new THREE.Vector3(Game.player.x, Game.player.y, Game.player.z);
+          var playerVec3d = projector.unprojectVector(playerVec, camera);
+          console.log('player pt: ' + playerVec3d.x + ' ' + playerVec3d.y + ' '
++ playerVec3d.z);
+
+//          var dir = 
+
+          /*
+          // scaled to NDC
+          var x = (x / window.innerWidth) * 2 - 1;
+          var y = -(y / window.innerHeight) * 2 + 1;
+          */
+        }
+      });
+
+      /*
+      $("#canvas").click(function(e) {
+        // put click coordinates in 3d space
+        var cx = Math.floor((e.clientX - $("#canvas").offset().left));
+        var cy = Math.floor((e.clientY - $("#canvas").offset().top));
+        console.log('click: ' + cx + ' ' + cy);
+
+        var vector = new THREE.Vector3(cx, cy, 0.5);
+        projector.unprojectVector(vector, camera);
+
+        console.log('click3d: ' + vector.x + ' ' + vector.y + ' ' + vector.z);
+        var pimp = Game.player;
+        console.log('player: ' + pimp.x + ' ' + pimp.y + ' ' + pimp.z);
+      });
+      */
+
       var plane = new THREE.PlaneGeometry(8, 8, 8, 8);
       var meshCanvas = new THREE.Mesh(plane, new THREE.MeshLambertMaterial({ color: 0xcccccc, ambient: 0x333333, shading: THREE.SmoothShading }));
       meshCanvas.rotation.x = -90 * Math.PI / 180;
@@ -136,7 +187,7 @@
       var delta = (time - lastTime) / 1000.0;
       lastTime = time;
       sphere.rotation.y += delta;
-      requestAnimationFrame(Game.update, renderer.domElement  );
+      requestAnimationFrame(Game.update, renderer.domElement);
       Game.player.update();
       Game.render();
     }

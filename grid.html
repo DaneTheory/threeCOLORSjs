@@ -27,11 +27,14 @@
 
     function init() {
       container = $('#canvas');
-      
-      camera = new THREE.PerspectiveCamera( 55, container.innerWidth() / container.innerHeight(), 1, 10000 );
-      camera.position.set(60, 60, 60);
-      camera.lookAt(new THREE.Vector3(10, 0, 10));
-      camera.up.set(0, 0, 1);
+      var ratio = container.innerWidth() / container.innerHeight();
+      var minHeight = 50;
+      camera = new THREE.OrthographicCamera ( -minHeight * ratio, minHeight * ratio, minHeight, -minHeight, 1, 10000 );
+      // establish our iso perspective
+      camera.position.set(100, 70, 100);
+      camera.lookAt(new THREE.Vector3(0, 0, 0));
+      // then move where we actually want to go
+      camera.position.set(80, 70, 80);
       
       scene = new THREE.Scene();
       

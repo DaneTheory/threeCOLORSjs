@@ -32,7 +32,8 @@
       
       var ratio = container.innerWidth() / container.innerHeight();
       var minHeight = 50;
-      camera = new THREE.OrthographicCamera ( -minHeight * ratio, minHeight * ratio, minHeight, -minHeight, 1, 10000 );
+      camera = new THREE.OrthographicCamera(
+          -minHeight * ratio, minHeight * ratio, minHeight, -minHeight, 1, 10000 );
       // establish our iso perspective
       camera.position.set(100, 70, 100);
       camera.lookAt(new THREE.Vector3(0, 0, 0));
@@ -46,7 +47,8 @@
       for (var i = -50; i < 50; i += 10) {
         var arr = [];
         for (var j = -50; j < 50; j += 10) {
-          var material = new THREE.MeshPhongMaterial({ color: 0xffffff, ambient: 0x999999, shading: THREE.SmoothShading });
+          var material = new THREE.MeshPhongMaterial({
+              color: 0xffffff, ambient: 0x999999, shading: THREE.SmoothShading });
           mesh = new THREE.Mesh(geometry, material);
           mesh.position.set(i, 4, j);
           mesh.castShadow = true;
@@ -57,7 +59,8 @@
       } 
       
       var plane = new THREE.PlaneGeometry(8, 8, 8, 8);
-      var meshCanvas = new THREE.Mesh(plane, new THREE.MeshLambertMaterial({ color: 0xAAAAAA, shading: THREE.SmoothShading }));
+      var meshCanvas = new THREE.Mesh(plane,
+          new THREE.MeshLambertMaterial({ color: 0xAAAAAA, shading: THREE.SmoothShading }));
       meshCanvas.rotation.x = -0.5 * Math.PI;
       meshCanvas.scale.x = meshCanvas.scale.y = meshCanvas.scale.z = 200;
       meshCanvas.receiveShadow = true;
@@ -114,16 +117,15 @@
       if (intersects.length > 1) selected = intersects[0].object;
       for (var i = 0; i < cubes.length; i++) {
         for (var j = 0; j < cubes[i].length; j++) {
-          var factor = (Math.sin((i * 2 * Math.PI / cubes.length) + time / 1000.0) +
-                       Math.sin((j * 2 * Math.PI / cubes[i].length) + time / 1000.0)) / 4 + 0.5;
+          var factor = (Math.sin((i * 2 * Math.PI / cubes.length) + time / 1000.0)
+              + Math.sin((j * 2 * Math.PI / cubes[i].length) + time / 1000.0)) / 4 + 0.5;
           var gradient = (i + j) / (cubes.length + cubes[i].length - 2);
           cubes[i][j].position.y = 4 + 15 * factor;
           if (cubes[i][j] == selected) 
             cubes[i][j].materials[0].color.setRGB(1, 1, 0);
           else 
-            cubes[i][j].materials[0].color.setRGB(1 - factor + factor * gradient,
-                                                  1 - factor,
-                                                  1 - factor * gradient );
+            cubes[i][j].materials[0].color.setRGB(
+                1 - factor + factor * gradient, 1 - factor, 1 - factor * gradient);
         }
       }
       requestAnimationFrame( animate, renderer.domElement  );

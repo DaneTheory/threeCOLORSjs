@@ -4,7 +4,8 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
 <script src="https://raw.github.com/mrdoob/three.js/master/build/Three.js"></script>
 <script src="https://raw.github.com/mrdoob/three.js/master/examples/js/RequestAnimationFrame.js"></script>
-<title>grid demo</title>
+<script type="text/javascript" src="http://hubert.io/content/soundmanager2/soundmanager2.js"></script>
+<title>Grid, now with some audio!</title>
 <style>
   * {margin: 0; padding: 0;}
   #canvas {
@@ -13,13 +14,42 @@
     margin: 40px auto;
     border: 1px solid #eee;
   }
+  
+  #stuff {
+    border: 1px solid black;
+    margin: 0 auto;
+    width: 1280px;
+  }
 </style>
 </head>
 
 <body>
   <div id="canvas"></div>
 
+  <div id="stuff">
+    <p>Song streamed from <a href="http://soundcloud.com">Soundcloud</a> and is: <a href="http://soundcloud.com/fuckmylife/deadmau5-limit-break">Deadmau5 - Limit Break</a></p>
+    <p>This page now has a dependency on Flash, lawl</p>
+  </div>
+
   <script type="text/javascript">
+    soundManager.debugFlash = true;
+    soundManager.url = 'http://hubert.io/content/soundmanager2/swf/';
+    soundManager.flashVersion = 9;
+    soundManager.flash9Options = {
+      useEQData: true
+    };
+
+    soundManager.onready(function () {
+      soundManager.createSound({
+        id: 'mySound',
+        url: 'https://api.soundcloud.com/tracks/8338772/stream?client_id=cf70d374942cb0bee7fb93a0cdcf81a6',
+        autoLoad: true,
+        autoPlay: true,
+        onload: function() { console.log('sound loaded') },
+        volume: 100
+      });
+    });
+
     var camera, scene, renderer, cubes, lastMouse;
     var container = $('#canvas');
 
@@ -44,9 +74,9 @@
       
       cubes = [];
       var geometry = new THREE.CubeGeometry(8, 8, 8);
-      for (var i = -50; i < 50; i += 10) {
+      for (var i = -80; i < 80; i += 10) {
         var arr = [];
-        for (var j = -50; j < 50; j += 10) {
+        for (var j = -80; j < 80; j += 10) {
           var material = new THREE.MeshPhongMaterial({
               color: 0xffffff, ambient: 0x999999, shading: THREE.SmoothShading });
           mesh = new THREE.Mesh(geometry, material);
@@ -112,6 +142,7 @@
     }
 
     function animate(time) {
+      var sound = soundManager.getSoundById('mySound');
       var intersects = fireRay(lastMouse);
       var selected = null;
       if (intersects.length > 1) selected = intersects[0].object;
@@ -121,11 +152,15 @@
               + Math.sin((j * 2 * Math.PI / cubes[i].length) + time / 1000.0)) / 4 + 0.5;
           var gradient = (i + j) / (cubes.length + cubes[i].length - 2);
           cubes[i][j].position.y = 4 + 15 * factor;
-          if (cubes[i][j] == selected) 
+          if (cubes[i][j] == selected) {
             cubes[i][j].materials[0].color.setRGB(1, 1, 0);
-          else 
-            cubes[i][j].materials[0].color.setRGB(
-                1 - factor + factor * gradient, 1 - factor, 1 - factor * gradient);
+          } else {
+            if(sound) {
+              cubes[i][j].materials[0].color.setRGB((1 - factor + factor * gradient) * sound.eqData.left[i*16+j], sound.eqData.left[i*16+j] * (1 - factor), sound.eqData.left[i*16+j] * (1 - factor * gradient));
+            } else {
+              cubes[i][j].materials[0].color.setRGB(1 - factor + factor * gradient, 1 - factor, 1 - factor * gradient);
+            }
+          }
         }
       }
       requestAnimationFrame( animate, renderer.domElement  );
@@ -134,3 +169,4 @@
   </script>
 </body>
 </html>
+
